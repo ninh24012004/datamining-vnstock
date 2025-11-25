@@ -1,0 +1,13 @@
+vnstock==0.2.9.2
+pandas
+sqlalchemy
+psycopg2-binary
+requests
+beautifulsoup4
+lxml
+pillow
+packaging
+openpyxl
+plotly
+ipython
+tqdm
