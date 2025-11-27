@@ -7,6 +7,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: stockdb
+    ports:
+      - "5432:5432" 
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,14 +19,6 @@ services:
 
   ingestion:
     build: ./ingestion
-    command: python worker.py
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: always
-
-  processor:
-    build: ./processor
     command: python worker.py
     depends_on:
       db:
@@ -43,7 +37,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"
+      - "8080:8080"
     depends_on:
       - backend
 
