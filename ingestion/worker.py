@@ -62,8 +62,14 @@ def fetch_raw_data():
             if 'time' in final_df.columns:
                 final_df['time'] = pd.to_datetime(final_df['time'])
 
+            # ---------- Xử lý trùng ngày cho cùng ticker ----------
+            numeric_cols = final_df.select_dtypes(include='number').columns.tolist()
+            group_cols = ['ticker', 'time']
+            final_df = final_df.groupby(group_cols, as_index=False)[numeric_cols].mean()
+
+            # Lưu vào DB
             final_df.to_sql('raw_stock_prices', db_engine, if_exists='replace', index=False)
-            print(f">>> SUCCESS: Saved {len(final_df)} rows of {count} symbols.")
+            print(f">>> SUCCESS: Saved {len(final_df)} rows of {count} symbols after averaging duplicates.")
         else:
             print(">>> WARNING: No data fetched.")
 
