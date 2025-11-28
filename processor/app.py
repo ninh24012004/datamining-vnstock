@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 import time
+from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
 
 DB_URI = 'postgresql://user:password@db:5432/stockdb'
@@ -32,7 +33,6 @@ def get_full_database():
 
 # ---------- Distribution ----------
 def compute_distribution(symbols=None, start_date=None, end_date=None):
-    # Nếu symbols trống, lấy tất cả ticker trong DB
     if symbols:
         tickers = [s.strip().upper() for s in symbols.split(",")]
     else:
@@ -158,42 +158,47 @@ def compute_correlation():
             print("[Correlation] No data found")
             return {}
 
-        # Pivot table
         pivot = df.pivot_table(index='time', columns='ticker', values='close')
-
-        # Tính correlation
         corr_matrix = pivot.corr().fillna(0)
-
-        # Lưu vào DB
-        corr_matrix.to_sql('correlation_table', db, if_exists='replace', index=True)
+        corr_matrix.to_sql('correlation_table', db, if_exists='replace', index_label='ticker')
         print(f"[Correlation] Updated correlation_table with {len(corr_matrix)} rows")
-
-        # Trả về dict cho frontend
-        return corr_matrix.to_dict()
+        return corr_matrix.to_dict(orient='index')
 
     except Exception as e:
         print(f"[Correlation] Error: {e}")
         return {}
 
-
 # ---------- Main loop ----------
-def main_loop(interval=60):
+def main_loop(interval=300):
     wait_for_db(db)
     print("Processor started, running in daemon mode...")
+
+    last_clustering = datetime.min  # lần clustering cuối cùng
+
     while True:
         try:
-            print("Running all compute tasks...")
+            print("Running regular compute tasks...")
             compute_distribution()
             compute_prediction()
             compute_trend()
             compute_seasonal()
-            compute_clustering()
             compute_correlation()
-            print(f"All tasks done. Sleeping {interval}s...\n")
+            print("Regular tasks done.")
+
+            # Clustering chạy 1 ngày 1 lần
+            now = datetime.now()
+            if now - last_clustering >= timedelta(days=1):
+                print("Running daily clustering task...")
+                compute_clustering()
+                last_clustering = now
+                print("Clustering done.")
+
+            print(f"Sleeping {interval}s...\n")
             time.sleep(interval)
+
         except Exception as e:
             print(f"Error occurred: {e}, retrying in {interval}s")
             time.sleep(interval)
 
 if __name__ == "__main__":
-    main_loop(interval=60)
+    main_loop(interval=300)

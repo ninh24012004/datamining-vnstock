@@ -79,9 +79,11 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
         // Histogram
         const dfHisto = filterData(data, histoFilter);
         if (dfHisto.length) {
+            Plotly.purge("histoChart");
             Plotly.newPlot("histoChart", [
-                { x: dfHisto.map(d => d.time), y: dfHisto.map(d => d.close), type: "bar", marker: { color: COLORS.secondary } }
-            ], { title: "", xaxis: { title: "Thời gian" }, yaxis: { title: "Giá (VND)" } }, { responsive: true });
+                { x: dfHisto.map(d => new Date(d.time)), y: dfHisto.map(d => d.close), type: "scatter",  fill: "tozeroy",   mode: "lines", fillcolor: COLORS.secondary }
+            ],          
+            { title: "", xaxis: { title: "Thời gian" }, yaxis: { title: "Giá (VND)" } }, { responsive: true });
         }
 
         // Trend Chart

@@ -78,4 +78,12 @@ def api_clustering():
 @app.get("/api/correlation")
 def api_correlation():
     df = read_table('correlation_table')
-    return {"data": df.to_dict()} if not df.empty else {"data": {}}
+    if df.empty:
+        return {"data": {}}
+
+    # Đặt lại index là ticker (nếu DB lưu ticker dưới dạng cột)
+    if "ticker" in df.columns:
+        df.set_index("ticker", inplace=True)
+
+    # Chuyển sang dict kiểu frontend cần
+    return {"data": df.to_dict(orient='index')}
