@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Phân tích Chứng khoán</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>📊 HỆ THỐNG PHÂN TÍCH CHỨNG KHOÁN VIỆT NAM</h1>
+        <p>Phân tích xu hướng, dự báo giá và phân cụm cổ phiếu</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Controls -->
+        <div class="card">
+            <label class="label">🔎 Chọn mã chứng khoán:</label>
+            <select id="tickerSelect">
+                <option value="ACB">ACB</option>
+                <option value="BCM">BCM</option>
+                <option value="BID">BID</option>
+                <option value="BVH">BVH</option>
+                <option value="CTG">CTG</option>
+                <option value="FPT">FPT</option>
+                <option value="GAS">GAS</option>
+                <option value="GVR">GVR</option>
+                <option value="HDB">HDB</option>
+                <option value="HPG" selected>HPG</option>
+                <option value="MBB">MBB</option>
+                <option value="MSN">MSN</option>
+                <option value="MWG">MWG</option>
+                <option value="PLX">PLX</option>
+                <option value="POW">POW</option>
+                <option value="SAB">SAB</option>
+                <option value="SHB">SHB</option>
+                <option value="SSB">SSB</option>
+                <option value="SSI">SSI</option>
+                <option value="STB">STB</option>
+                <option value="TCB">TCB</option>
+                <option value="TPB">TPB</option>
+                <option value="VCB">VCB</option>
+                <option value="VHM">VHM</option>
+                <option value="VIB">VIB</option>
+                <option value="VIC">VIC</option>
+                <option value="VJC">VJC</option>
+                <option value="VNM">VNM</option>
+                <option value="VPB">VPB</option>
+                <option value="VRE">VRE</option>
+            </select>
+        </div>
+
+        <!-- Prediction Box -->
+        <div id="prediction-box" class="prediction-grid"></div>
+
+        <!-- Row 1: Price Chart -->
+        <div class="card full-width">
+            <h3>📈 Giá theo thời gian</h3>
+            <div class="filter-group">
+                <label>Lọc theo:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="priceFilter" value="day" checked> 📅 Ngày</label>
+                    <label><input type="radio" name="priceFilter" value="month"> 📊 Tháng</label>
+                    <label><input type="radio" name="priceFilter" value="year"> 📆 Năm</label>
+                </div>
+            </div>
+            <div id="priceChart" class="chart"></div>
+        </div>
+
+        <!-- Row 2: Volume + Histogram -->
+        <div class="grid-2">
+            <div class="card">
+                <h3>📊 Khối lượng giao dịch theo thời gian</h3>
+                <div class="filter-group">
+                    <label>Lọc theo:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="volumeFilter" value="day" checked> 📅 Ngày</label>
+                        <label><input type="radio" name="volumeFilter" value="month"> 📊 Tháng</label>
+                        <label><input type="radio" name="volumeFilter" value="year"> 📆 Năm</label>
+                    </div>
+                </div>
+                <div id="volumeChart" class="chart"></div>
+            </div>
+
+            <div class="card">
+                <h3>📉 Phân phối Giá theo Thời gian</h3>
+                <div class="filter-group">
+                    <label>Lọc theo:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="histoFilter" value="day" checked> 📅 Ngày</label>
+                        <label><input type="radio" name="histoFilter" value="month"> 📊 Tháng</label>
+                        <label><input type="radio" name="histoFilter" value="year"> 📆 Năm</label>
+                    </div>
+                </div>
+                <div id="histoChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Row 3: Trend + Seasonal -->
+        <div class="grid-2">
+            <div class="card">
+                <h3>📈 Xu hướng giá theo Tháng</h3>
+                <div id="trendChart" class="chart"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Biểu đồ Giá theo mùa của từng năm</h3>
+                <div id="seasonalChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Row 4: Clustering + Correlation -->
+        <div class="grid-2">
+            <div class="card">
+                <h3>🎯 Phân loại Cổ phiếu</h3>
+                <div id="clusterChart" class="chart-large"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔗 Ma trận Tương quan</h3>
+                <div id="corrChart" class="chart-large"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
