@@ -20,16 +20,15 @@ const CHART_LAYOUT = {
 document.getElementById("tickerSelect").addEventListener("change", updateAll);
 document.querySelectorAll('input[name="priceFilter"]').forEach(r => r.addEventListener("change", updateAll));
 document.querySelectorAll('input[name="volumeFilter"]').forEach(r => r.addEventListener("change", updateAll));
-document.querySelectorAll('input[name="histoFilter"]').forEach(r => r.addEventListener("change", updateAll));
+
 
 async function updateAll() {
     const ticker = document.getElementById("tickerSelect").value;
     const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
     const volumeFilter = document.querySelector('input[name="volumeFilter"]:checked').value;
-    const histoFilter = document.querySelector('input[name="histoFilter"]:checked').value;
 
     updatePrediction(ticker);
-    updateCharts(ticker, priceFilter, volumeFilter, histoFilter);
+    updateCharts(ticker, priceFilter, volumeFilter);
     updateCorrelation();
 }
 
@@ -114,26 +113,28 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
         }
 
         // Histogram
-        const dfHisto = filterData(data, histoFilter);
+        const dfHisto = data;
         if (dfHisto.length) {
             Plotly.purge("histoChart");
             Plotly.newPlot("histoChart", [
                 { 
-                    x: dfHisto.map(d => new Date(d.time)), 
-                    y: dfHisto.map(d => d.close), 
-                    type: "bar",
-                    marker: { color: '#ffd93d', line: { color: 'rgba(212, 175, 55, 0.3)', width: 1 } },
-                    width: 0.7
+                    x: dfHisto.map(d => d.close),  // chỉ cần mảng giá
+                    type: "histogram",
+                    marker: { 
+                        color: '#ffd93d', 
+                        line: { color: 'rgba(212, 175, 55, 0.3)', width: 1 } 
+                    },
+                    opacity: 0.9
                 }
             ], { 
                 ...CHART_LAYOUT,
                 title: "", 
-                xaxis: { ...CHART_LAYOUT.xaxis, title: "Thời gian", type: "date" }, 
-                yaxis: { ...CHART_LAYOUT.yaxis, title: "Giá (VND)" },
-                barmode: "group",
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Giá (VND)" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Tần suất" },
                 margin: { t: 20, r: 40, b: 60, l: 70 }
             }, { responsive: true });
         }
+
 
         // Trend Chart
         const trendResp = await fetch(`${API_URL}/trend?symbols=${ticker}`);
