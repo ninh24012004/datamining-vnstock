@@ -1,10 +1,19 @@
 const API_URL = "http://localhost:8000/api";
 
 const COLORS = {
-    secondary: "#3498db",
-    success: "#2ecc71",
-    danger: "#e74c3c",
-    warning: "#f39c12"
+    secondary: "#d4af37",
+    success: "#00d4aa",
+    danger: "#ff4757",
+    warning: "#ffd93d"
+};
+
+// Golden Dark Theme Layout
+const CHART_LAYOUT = {
+    paper_bgcolor: 'rgba(26, 35, 50, 0.5)',
+    plot_bgcolor: 'rgba(10, 22, 40, 0.3)',
+    font: { color: '#b8c5d6', family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' },
+    xaxis: { gridcolor: 'rgba(212, 175, 55, 0.1)', color: '#b8c5d6' },
+    yaxis: { gridcolor: 'rgba(212, 175, 55, 0.1)', color: '#b8c5d6' }
 };
 
 // Event listeners
@@ -21,7 +30,7 @@ async function updateAll() {
 
     updatePrediction(ticker);
     updateCharts(ticker, priceFilter, volumeFilter, histoFilter);
-    updateCorrelation(); // gọi luôn để cập nhật ma trận tương quan
+    updateCorrelation();
 }
 
 async function updatePrediction(ticker) {
@@ -64,16 +73,44 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
         if (data.length) {
             const df = filterData(data, priceFilter);
             Plotly.newPlot("priceChart", [
-                { x: df.map(d => d.time), y: df.map(d => d.close), type: "scatter", mode: "lines+markers", line: { color: COLORS.secondary, width: 3 } }
-            ], { title: "", xaxis: { title: "Thời gian" }, yaxis: { title: "Giá (VND)" }, hovermode: "x unified" }, { responsive: true });
+                { 
+                    x: df.map(d => d.time), 
+                    y: df.map(d => d.close), 
+                    type: "scatter", 
+                    mode: "lines+markers", 
+                    line: { color: '#d4af37', width: 3 },
+                    marker: { color: '#f4e4a6', size: 4 },
+                    fill: 'tozeroy',
+                    fillcolor: 'rgba(212, 175, 55, 0.1)'
+                }
+            ], { 
+                ...CHART_LAYOUT,
+                title: "", 
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Thời gian" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Giá (VND)" }, 
+                hovermode: "x unified",
+                margin: { t: 20, r: 40, b: 60, l: 70 }
+            }, { responsive: true });
         }
 
         // Volume Chart
         const dfVol = filterData(data, volumeFilter);
         if (dfVol.length) {
             Plotly.newPlot("volumeChart", [
-                { x: dfVol.map(d => d.time), y: dfVol.map(d => d.volume), type: "scatter", mode: "markers", marker: { size: 8, color: COLORS.secondary } }
-            ], { title: "", xaxis: { title: "Thời gian" }, yaxis: { title: "Khối lượng GD" } }, { responsive: true });
+                { 
+                    x: dfVol.map(d => d.time), 
+                    y: dfVol.map(d => d.volume), 
+                    type: "scatter", 
+                    mode: "markers", 
+                    marker: { size: 8, color: '#00d4aa', line: { color: '#fff', width: 1 } }
+                }
+            ], { 
+                ...CHART_LAYOUT,
+                title: "", 
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Thời gian" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Khối lượng GD" },
+                margin: { t: 20, r: 40, b: 60, l: 70 }
+            }, { responsive: true });
         }
 
         // Histogram
@@ -85,17 +122,17 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
                     x: dfHisto.map(d => new Date(d.time)), 
                     y: dfHisto.map(d => d.close), 
                     type: "bar",
-                    marker: { color: COLORS.secondary },
+                    marker: { color: '#ffd93d', line: { color: 'rgba(212, 175, 55, 0.3)', width: 1 } },
                     width: 0.7
                 }
-            ],          
-            { 
+            ], { 
+                ...CHART_LAYOUT,
                 title: "", 
-                xaxis: { title: "Thời gian", type: "date" }, 
-                yaxis: { title: "Giá (VND)" },
-                barmode: "group"
-            }, 
-            { responsive: true });
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Thời gian", type: "date" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Giá (VND)" },
+                barmode: "group",
+                margin: { t: 20, r: 40, b: 60, l: 70 }
+            }, { responsive: true });
         }
 
         // Trend Chart
@@ -103,8 +140,21 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
         const trendData = (await trendResp.json()).data || [];
         if (trendData.length) {
             Plotly.newPlot("trendChart", [
-                { x: trendData.map(d => d.time), y: trendData.map(d => d.close), type: "scatter", mode: "lines+markers", line: { color: COLORS.success, width: 3 } }
-            ], { title: "", xaxis: { title: "Tháng" }, yaxis: { title: "Giá trung bình (VND)" } }, { responsive: true });
+                { 
+                    x: trendData.map(d => d.time), 
+                    y: trendData.map(d => d.close), 
+                    type: "scatter", 
+                    mode: "lines+markers", 
+                    line: { color: '#00d4aa', width: 3, shape: 'spline' },
+                    marker: { color: '#00d4aa', size: 6 }
+                }
+            ], { 
+                ...CHART_LAYOUT,
+                title: "", 
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Tháng" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Giá trung bình (VND)" },
+                margin: { t: 20, r: 40, b: 60, l: 70 }
+            }, { responsive: true });
         }
 
         // Seasonal Chart
@@ -118,14 +168,30 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
                 grouped[year].push(d);
             });
 
-            const traces = Object.entries(grouped).map(([year, items]) => ({
+            const colors = ['#d4af37', '#00d4aa', '#ffd93d', '#ff4757', '#f4e4a6'];
+            const traces = Object.entries(grouped).map(([year, items], idx) => ({
                 x: items.map(d => new Date(d.time).getMonth() + 1),
                 y: items.map(d => d.close),
                 name: year,
                 type: "scatter",
-                mode: "lines+markers"
+                mode: "lines+markers",
+                line: { width: 2.5, color: colors[idx % colors.length] },
+                marker: { size: 5 }
             }));
-            Plotly.newPlot("seasonalChart", traces, { title: "", xaxis: { title: "Tháng" }, yaxis: { title: "Giá (VND)" } }, { responsive: true });
+            
+            Plotly.newPlot("seasonalChart", traces, { 
+                ...CHART_LAYOUT,
+                title: "", 
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Tháng" }, 
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Giá (VND)" },
+                legend: {
+                    bgcolor: 'rgba(26, 35, 50, 0.8)',
+                    bordercolor: '#d4af37',
+                    borderwidth: 1,
+                    font: { color: '#f4e4a6' }
+                },
+                margin: { t: 20, r: 40, b: 60, l: 70 }
+            }, { responsive: true });
         }
 
         // Clustering Chart
@@ -137,7 +203,7 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
             const medianVol = clustData.map(d => d.volatility).sort((a, b) => a - b)[Math.floor(clustData.length / 2)];
             const medianRet = clustData.map(d => d.returns).sort((a, b) => a - b)[Math.floor(clustData.length / 2)];
 
-            const colorMap = { "Ổn định": "#3498db", "Rủi ro cao": "#e74c3c", "Tiềm năng": "#2ecc71" };
+            const colorMap = { "Ổn định": "#00d4aa", "Rủi ro cao": "#ff4757", "Tiềm năng": "#d4af37" };
             const grouped = { "Ổn định": [], "Rủi ro cao": [], "Tiềm năng": [] };
 
             clustData.forEach(d => {
@@ -155,20 +221,27 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
                 mode: "markers+text",
                 type: "scatter",
                 name,
-                marker: { size: 10, color: colorMap[name], opacity: 0.8, line: { width: 1, color: "white" } },
+                marker: { size: 10, color: colorMap[name], opacity: 0.8, line: { width: 1, color: "#0a1628" } },
                 textposition: "top center",
-                textfont: { size: 9, color: "#2c3e50" },
+                textfont: { size: 9, color: "#f4e4a6" },
                 hovertemplate: "<b>%{text}</b><br>Lợi suất: %{y:.2f}%<br>Biến động: %{x:.2f}%<extra></extra>"
             }));
 
             const layout = {
-                title: "📊 Phân nhóm cổ phiếu theo Lợi suất & Biến động",
-                xaxis: { title: "Độ biến động (%)", showgrid: true, gridwidth: 1, gridcolor: "#e0e0e0" },
-                yaxis: { title: "Lợi suất trung bình năm (%)", showgrid: true, gridwidth: 1, gridcolor: "#e0e0e0", zeroline: true, zerolinewidth: 2, zerolinecolor: "#bdbdbd" },
-                plot_bgcolor: "white",
-                paper_bgcolor: "white",
+                ...CHART_LAYOUT,
+                title: { text: "📊 Phân nhóm cổ phiếu theo Lợi suất & Biến động", font: { color: '#f4e4a6', size: 16 } },
+                xaxis: { ...CHART_LAYOUT.xaxis, title: "Độ biến động (%)", showgrid: true, gridwidth: 1 },
+                yaxis: { ...CHART_LAYOUT.yaxis, title: "Lợi suất trung bình năm (%)", showgrid: true, gridwidth: 1, zeroline: true, zerolinewidth: 2, zerolinecolor: "rgba(212, 175, 55, 0.3)" },
                 margin: { l: 70, r: 150, t: 80, b: 70 },
-                legend: { title: { text: "Nhóm cổ phiếu" }, x: 1.02, y: 0.98, bgcolor: "rgba(255,255,255,0.9)", bordercolor: "#bdbdbd", borderwidth: 1 },
+                legend: { 
+                    title: { text: "Nhóm cổ phiếu", font: { color: '#f4e4a6' } }, 
+                    x: 1.02, 
+                    y: 0.98, 
+                    bgcolor: "rgba(26, 35, 50, 0.8)", 
+                    bordercolor: "#d4af37", 
+                    borderwidth: 1,
+                    font: { color: '#f4e4a6' }
+                },
                 hovermode: "closest"
             };
 
@@ -176,14 +249,14 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
 
             Plotly.relayout("clusterChart", {
                 shapes: [
-                    { type: "line", x0: medianVol, x1: medianVol, y0: Math.min(...clustData.map(d => d.returns)), y1: Math.max(...clustData.map(d => d.returns)), line: { dash: "dash", color: "#95a5a6", width: 1 } },
-                    { type: "line", y0: medianRet, y1: medianRet, x0: Math.min(...clustData.map(d => d.volatility)), x1: Math.max(...clustData.map(d => d.volatility)), line: { dash: "dash", color: "#95a5a6", width: 1 } }
+                    { type: "line", x0: medianVol, x1: medianVol, y0: Math.min(...clustData.map(d => d.returns)), y1: Math.max(...clustData.map(d => d.returns)), line: { dash: "dash", color: "#d4af37", width: 1.5 } },
+                    { type: "line", y0: medianRet, y1: medianRet, x0: Math.min(...clustData.map(d => d.volatility)), x1: Math.max(...clustData.map(d => d.volatility)), line: { dash: "dash", color: "#d4af37", width: 1.5 } }
                 ],
                 annotations: [
-                    { x: 0.95, y: 0.95, xref: "paper", yref: "paper", text: "🚀 Tiềm năng<br>Lợi suất cao", showarrow: false, bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#bdc3c7", borderwidth: 1, borderpad: 4 },
-                    { x: 0.05, y: 0.95, xref: "paper", yref: "paper", text: "⭐ Ổn định<br>Lợi suất trung bình, ít biến động", showarrow: false, bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#bdc3c7", borderwidth: 1, borderpad: 4 },
-                    { x: 0.05, y: 0.05, xref: "paper", yref: "paper", text: "💼 Bảo thủ<br>Ổn định nhưng lợi suất thấp", showarrow: false, bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#bdc3c7", borderwidth: 1, borderpad: 4 },
-                    { x: 0.95, y: 0.05, xref: "paper", yref: "paper", text: "⚠️ Rủi ro cao<br>Biến động cao, lợi suất thấp", showarrow: false, bgcolor: "rgba(255,255,255,0.8)", bordercolor: "#bdc3c7", borderwidth: 1, borderpad: 4 }
+                    { x: 0.95, y: 0.95, xref: "paper", yref: "paper", text: "🚀 Tiềm năng<br>Lợi suất cao", showarrow: false, bgcolor: "rgba(26, 35, 50, 0.9)", bordercolor: "#d4af37", borderwidth: 2, borderpad: 6, font: { color: '#f4e4a6', size: 11 } },
+                    { x: 0.05, y: 0.95, xref: "paper", yref: "paper", text: "⭐ Ổn định<br>Lợi suất trung bình, ít biến động", showarrow: false, bgcolor: "rgba(26, 35, 50, 0.9)", bordercolor: "#00d4aa", borderwidth: 2, borderpad: 6, font: { color: '#f4e4a6', size: 11 } },
+                    { x: 0.05, y: 0.05, xref: "paper", yref: "paper", text: "💼 Bảo thủ<br>Ổn định nhưng lợi suất thấp", showarrow: false, bgcolor: "rgba(26, 35, 50, 0.9)", bordercolor: "#ffd93d", borderwidth: 2, borderpad: 6, font: { color: '#f4e4a6', size: 11 } },
+                    { x: 0.95, y: 0.05, xref: "paper", yref: "paper", text: "⚠️ Rủi ro cao<br>Biến động cao, lợi suất thấp", showarrow: false, bgcolor: "rgba(26, 35, 50, 0.9)", bordercolor: "#ff4757", borderwidth: 2, borderpad: 6, font: { color: '#f4e4a6', size: 11 } }
                 ]
             });
         }
@@ -208,21 +281,24 @@ async function updateCorrelation() {
             x: tickers,
             y: tickers,
             type: "heatmap",
-            colorscale: "RdBu",
+            colorscale: [
+                [0, '#ff4757'],
+                [0.5, '#1a2332'],
+                [1, '#d4af37']
+            ],
             zmin: -1,
             zmax: 1,
             text: zData.map(row => row.map(val => val.toFixed(2))),
             texttemplate: "%{text}",
-            textfont: { size: 6 },
+            textfont: { size: 6, color: '#f4e4a6' },
             hovertemplate: "%{y} - %{x}: %{z:.2f}<extra></extra>",
-            xgap: 0.2, // tăng ô theo chiều ngang
-            ygap: 0.2  // tăng ô theo chiều dọc
+            xgap: 0.2,
+            ygap: 0.2
         }], {
-            xaxis: { title: "Mã CK", tickangle: -45 },
-            yaxis: { title: "Mã CK", autorange: "reversed" },
-            margin: { b: 70, l: 70 },
-            plot_bgcolor: "white",
-            paper_bgcolor: "white"
+            ...CHART_LAYOUT,
+            xaxis: { ...CHART_LAYOUT.xaxis, title: "Mã CK", tickangle: -45 },
+            yaxis: { ...CHART_LAYOUT.yaxis, title: "Mã CK", autorange: "reversed" },
+            margin: { b: 100, l: 80, t: 40, r: 40 }
         }, { responsive: true });
 
     } catch (e) {
