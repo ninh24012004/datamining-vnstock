@@ -143,7 +143,7 @@ async function updateCharts(ticker, priceFilter, volumeFilter, histoFilter) {
                 { 
                     x: trendData.map(d => d.time), 
                     y: trendData.map(d => d.close), 
-                    type: "scatter", 
+                    type: "line", 
                     mode: "lines+markers", 
                     line: { color: '#00d4aa', width: 3, shape: 'spline' },
                     marker: { color: '#00d4aa', size: 6 }
