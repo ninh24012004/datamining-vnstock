@@ -303,7 +303,6 @@ async function updateCorrelation() {
         }, { responsive: true });
 
     } catch (e) {
-        console.error("Lỗi correlation:", e);
         document.getElementById("corrChart").innerHTML = '<div style="color:red;">❌ Lỗi tải dữ liệu</div>';
     }
 }
